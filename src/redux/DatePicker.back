@@ -1,0 +1,159 @@
+import React, { Component } from "react";
+import { DateTime, Info } from "luxon";
+
+class DatePicker extends Component {
+    constructor(props) {
+        super(props);
+        let today = DateTime.local();
+        this.state = {
+            today: today,
+            currentMonth: today,
+            currentView: 'date',
+            selectedDay: null,
+            disabled: {
+                from: today,
+                list: []
+            },
+            locate: "en"
+        }
+        this.onSelectDay = this.onSelectDay.bind(this);
+        this.onMonthDropdownChange = this.onMonthDropdownChange.bind(this);
+        this.onYearDropdownChange = this.onYearDropdownChange.bind(this);
+    }
+
+    getWeekDays() {
+        return Info.weekdays("short", { locate: this.state.locate });
+    }
+
+    getMonthDays() {
+        let { currentMonth } = this.state;
+        let first_day = currentMonth.startOf("month").startOf("week");
+        let last_day = currentMonth.endOf("month").endOf("week");
+        let totalDays = last_day.diff(first_day, "days").days;
+        //Build weekdays;
+        let weekDays = [];
+        let dayInWeeks = [];
+        for (let i = 0; i <= totalDays; i++) {
+            let j = i % 7;
+            dayInWeeks[j] = first_day.plus({ days: i });
+            if (j === 6) {
+                weekDays.push(dayInWeeks);
+                dayInWeeks = [];
+            }
+        }
+        return weekDays
+    }
+
+    getDateClass(date) {
+        let dateClass = "date";
+        let { currentMonth, selectedDay, today } = this.state;
+        console.log(selectedDay);
+        if (currentMonth.month === date.month) {
+            dateClass += " date-in-month";
+        }
+        if (today.toISODate() === date.toISODate()) {
+            dateClass += " today";
+        }
+        if (selectedDay !== null &&
+            selectedDay.toISODate() === date.toISODate()
+        ) {
+            dateClass += " selected";
+        }
+        //"date" + (currentMonth.month === date.month ? " date-in-month" : "") + ((typeof selectedDay !== "un" selectedDay.toISODate() === date.toISODate()) ? " selected" : "")
+        return dateClass;
+    }
+
+    onSelectDay = (e, date) => {
+        // console.log(date.toISODate(), this.state.selectedDay.toISODate());
+        this.setState({
+            selectedDay: date,
+            currentMonth: date
+        })
+    }
+
+    prevMonth = () => {
+        let { currentMonth } = this.state;
+        this.setState({
+            currentMonth: currentMonth.minus({month:1})
+        })
+    }
+
+    nextMonth = () => {
+        let { currentMonth } = this.state;
+        this.setState({
+            currentMonth: currentMonth.plus({month:1})
+        })
+    }
+
+    getMonthDropdown = () => {
+        let { locate, currentMonth } = this.state;
+        return (
+            <select onChange={this.onMonthDropdownChange} value={currentMonth.month-1}>
+            {Info.months("long", { locate: locate}).map((month, index) => {
+                return <option value={index} key={index}>{month}</option>
+            })}
+            </select>
+        );
+    }
+
+    onMonthDropdownChange = (e) => {
+        let { currentMonth } = this.state;
+        let monthIndex = parseInt(e.target.value, 10);
+        let selectedDateTime = DateTime.local(currentMonth.year, monthIndex+1);
+        this.setState({currentMonth:selectedDateTime});
+    }
+
+    getYearsDropdown() {
+        let { currentMonth, today } = this.state;
+        return (
+            <select onChange={this.onYearDropdownChange} value={currentMonth.year}>
+            {[...Array(11).keys()].map((item) => {
+                let value = today.year+item;
+                return <option value={value} key={item}>{value}</option>
+            })}
+            </select>
+        );
+    }
+    onYearDropdownChange = e => {
+        let { currentMonth } = this.state;
+        let year = parseInt(e.target.value, 10);
+        let selectedDateTime = DateTime.local(year, currentMonth.month);
+        this.setState({currentMonth:selectedDateTime});
+    }
+
+    render() {
+        const { currentMonth, selectedDay } = this.state;
+        return (
+            <div className="datepicker-wrapper">
+                <div className="month-year d-flex">
+                    {/* <span className="nav-btn previous-month-btn mr-auto" onClick={e=>this.prevMonth()}>&lt;</span> */}
+                    <span className="month-year-wrapper">{this.getMonthDropdown()} {this.getYearsDropdown()}</span>
+                    {/* <span className="nav-btn next-month-btn ml-auto" onClick={e=>this.nextMonth()}>&gt;</span> */}
+                </div>
+                <div className="calendar">
+                    <table>
+                        <thead>
+                            <tr className="weekdays">
+                                {this.getWeekDays().map((item, index) => {
+                                    return <th key={index}>{item}</th>;
+                                })}
+                            </tr>
+                        </thead>
+                        <tbody className="days">
+                            {this.getMonthDays().map((weeks, i) => {
+                                return (
+                                    <tr className="weeks" key={i}>
+                                        {weeks.map((date, j) => {
+                                            return <td className={this.getDateClass(date)} key={i * 7 + j} onClick={e => this.onSelectDay(e, date)}>{date.day}</td>
+                                        })}
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    }
+}
+export default DatePicker;

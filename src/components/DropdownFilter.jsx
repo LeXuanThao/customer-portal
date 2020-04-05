@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-class DropdownFilter extends Component
-{
+class DropdownFilter extends Component {
     constructor(props) {
         super(props);
         this.state = {
             selected: [],
             query: "",
             isSelectAll: false,
-            isSelectAllFiltered: false
+            isSelectAllFiltered: false,
+            show: false
         }
         this.filterItems = this.filterItems.bind(this);
         this.toggleSelectAll = this.toggleSelectAll.bind(this);
@@ -26,9 +27,18 @@ class DropdownFilter extends Component
         e.preventDefault();
         let { items } = this.props;
         this.setState({
-            selected: this.state.isSelectAll?[]:items,
+            selected: this.state.isSelectAll ? [] : items,
             isSelectAll: !this.state.isSelectAll
         });
+    }
+    
+    toggleSelectAllItem(e) {
+        e.preventDefault;
+        // let { isSelectAllFiltered } = this.state;
+        // let items = this.getItems();
+        // if (this.isSelectAllFiltered) {
+            
+        // }
     }
 
     toggleSelectItem(e, value) {
@@ -75,24 +85,38 @@ class DropdownFilter extends Component
         let selected = this.state.selected;
         return selected.length === items.length;
     }
-    
+
     render() {
-        return(
+        return (
             <div className={"filter-wrapper"}>
-                <div className={"dropdown-input"}>Select Category</div>
+                <div className={"dropdown-input"} >Select Category</div>
                 <div className={"dropdown-filter-menu"}>
-                    <div className={"dropdown-menu-item item-select-all"+(this.isSelectAll() ? " selected" : "")} onClick={this.toggleSelectAll}><span className="check"/>{this.state.isSelectAll ? "Unselect All" : "Select All"}</div>
-                    <div className={"dropdown-menu-item-input-query"}>
-                        <input type={"text"} onChange={this.filterItems}/>
+                    <div className={"dropdown-menu-item item-select-all" + (this.isSelectAll() ? " selected" : "")} onClick={this.toggleSelectAll}>
+                        <span className="check">{this.isSelectAll() ? (<FontAwesomeIcon icon={["far", "check-square"]} />) : (<FontAwesomeIcon icon={["far", "square"]} />)}</span>
+                        {this.state.isSelectAll ? "Unselect All" : "Select All"}
                     </div>
-                    {(this.state.query && this.getItems().length > 0) ? (<div className={"dropdown-menu-item item-select-all-filtered"+(this.isSelectAllFiltered() ? " selected" : "")}><span className="check"/>{this.isSelectAllFiltered() ? "Unselect All filtered results": "Select All filtered results"}</div>) : null}
+                    <div className={"dropdown-menu-item-input-query"}>
+                        <input type={"text"} onChange={this.filterItems} />
+                    </div>
+                    {(this.state.query && this.getItems().length > 0) ? (<div className={"dropdown-menu-item item-select-all-filtered" + (this.isSelectAllFiltered() ? " selected" : "")}>
+                        <span className="check">{this.isSelectAllFiltered()?<FontAwesomeIcon icon={["far", "check-square"]} />:<FontAwesomeIcon icon={["far", "square"]} />}</span>
+                        {this.isSelectAllFiltered() ? "Unselect All filtered results" : "Select All filtered results"}
+                        </div>
+                    ) : null}
                     {this.getItems().map((item, index) => {
-                        return <div className={"dropdown-menu-item"+(this.isSelectedItem(item) ? " selected" : "")} key={index} onClick={(e)=>this.toggleSelectItem(e, item)}><span className="check"/>{item}</div>
+                        return (
+                        <div className={"dropdown-menu-item" + (this.isSelectedItem(item) ? " selected" : "")} key={index} onClick={(e) => this.toggleSelectItem(e, item)}>
+                            <span className="check">
+                                {this.isSelectedItem(item)?(<FontAwesomeIcon icon={["far", "check-square"]} />):(<FontAwesomeIcon icon={["far", "square"]} />)}
+                            </span>
+                            {item}
+                        </div>
+                        );
                     })}
-                    {this.getItems().length === 0 ? (<div className={"dropdown-menu-item no-data"}>No data available</div> ): null}
+                    {this.getItems().length === 0 ? (<div className={"dropdown-menu-item no-data"}>No data available</div>) : null}
                 </div>
             </div>
         );
-    }    
+    }
 }
-export default DropdownFtiler;
+export default DropdownFilter;

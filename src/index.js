@@ -3,6 +3,7 @@ import { render } from "react-dom";
 import { Provider } from "react-redux";
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { far } from '@fortawesome/free-regular-svg-icons';
 
 import App from "./App";
 
@@ -11,7 +12,7 @@ import store from "./redux/store";
 import "bootstrap/scss/bootstrap.scss";
 import "./style.scss";
 
-library.add(fas);
+library.add(fas, far);
 
 const rootElement = document.getElementById("root");
 render(<Provider store={store}><App /></Provider>, rootElement);

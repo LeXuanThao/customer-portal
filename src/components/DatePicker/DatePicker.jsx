@@ -7,15 +7,22 @@ class DatePicker extends Component {
     constructor(props) {
         super(props);
         let today = DateTime.local();
-        this.state = {
+        let initDate = today;
+        let value = props.value;
+        
+        let options = {
             currentView: "day",
-            today: today,
-            currentMonth: today,
+            today: initDate,
+            currentMonth: initDate,
             selected: null,
             disabled: {
                 from: today
             }
         }
+        if (value.c !== null) {
+            options.selected = value;
+        }
+        this.state = options;
         // Fn for navigation;
         this.onNavChange = this.onNavChange.bind(this);
         this.onCalendarSelect = this.onCalendarSelect.bind(this);

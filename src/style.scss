@@ -3,52 +3,6 @@
 @import "node_modules/bootstrap/scss/variables";
 @import "node_modules/bootstrap/scss/mixins";
 
-// body {
-//     padding: 30px;
-// }
-// .datepicker-wrapper {
-//     width: 280px;
-//     .month-year {
-//         font-weight: bold;
-//         line-height: 30px;
-
-//         .nav-btn {
-//             border: 1px solid $gray-600;
-//             width: 30px;
-//             height: 30px;
-//             text-align: center;
-//             border-radius: 5px;
-//             cursor: pointer;
-//         }
-//     }
-//     .calendar {
-//         .weekdays {
-//             & > th {
-//                 text-align: center;
-//             }
-//         }
-//         .weeks {
-//             .date {
-//                 color: $gray-600;
-//                 width: 40px;
-//                 height: 40px;
-//                 text-align: center;
-//                 line-height: 40px;
-//                 border-radius: 50%;
-
-//                 &.date-in-month {
-//                     color: $gray-800;
-//                 }
-
-//                 &:hover, &.selected {
-//                     background: $blue;
-//                     cursor: pointer;
-//                     color: $white;
-//                 }
-//             }
-//         }
-//     }
-// }
 $calendar-primary-color: #ff6666;
 $calendar-primary-hover-color: #E55C5C;
 $calendar-secondary-hover-bg-color: #E8ECEF;
@@ -67,7 +21,9 @@ $calendar-text-hover: $white;
         top: 100%;
         box-shadow: 0px 0px 6px rgba(0,0,0,0.6);
         margin-top: 5px;
-
+        right: 0;
+        z-index: 9999;
+        background: $white;
     }
 
     .datepicker-nav {
@@ -114,7 +70,7 @@ $calendar-text-hover: $white;
     }
 
     .datepicker-calendar {
-        padding: 5px;
+        padding: 10px;
         color: $calendar-text-color;
 
         .weekdays {

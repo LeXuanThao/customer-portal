@@ -13,7 +13,6 @@ class App extends Component
                     <Route path="/quotes" component={Quotes} />
                     <Route path="*" render={()=>"Not Found!"} />
                 </Switch>
-                <InputDatePicker />
             </BrowserRouter>
         );
     }

@@ -11,9 +11,11 @@ class DropdownFilter extends Component {
             isSelectAllFiltered: false,
             show: false
         }
+        this.dropdownRef = React.createRef();
         this.filterItems = this.filterItems.bind(this);
         this.toggleSelectAll = this.toggleSelectAll.bind(this);
-        // this.toggleSelectItem = this.toggleSelectItem.bind(this);
+        this.toggleSelectAllItem = this.toggleSelectAllItem.bind(this);
+        this.toggleFilterMenu = this.toggleFilterMenu.bind(this);
     }
 
     filterItems(e) {
@@ -29,16 +31,24 @@ class DropdownFilter extends Component {
         this.setState({
             selected: this.state.isSelectAll ? [] : items,
             isSelectAll: !this.state.isSelectAll
-        });
+        }, () => this.emitValue(this.state.selected));
     }
     
     toggleSelectAllItem(e) {
-        e.preventDefault;
-        // let { isSelectAllFiltered } = this.state;
-        // let items = this.getItems();
-        // if (this.isSelectAllFiltered) {
+        e.preventDefault();
+        let { selected } = this.state;
+        let items = this.getItems();
+        let newSelected = [];
+        if (this.isSelectAllFiltered()) {
+            //current sellect items -> remove all;
+            newSelected = selected.filter(x => !items.includes(x));
+        } else {
+            newSelected = selected.concat(items.filter(x => !selected.includes(x)));
             
-        // }
+        }
+        this.setState({
+            selected: newSelected
+        }, () => this.emitValue(this.state.selected));
     }
 
     toggleSelectItem(e, value) {
@@ -52,7 +62,7 @@ class DropdownFilter extends Component {
         }
         this.setState({
             selected: selected
-        });
+        }, () => this.emitValue(this.state.selected));
     }
 
     isSelectedItem(value) {
@@ -68,7 +78,7 @@ class DropdownFilter extends Component {
     getItems() {
         let { items } = this.props;
         let dropdownItems = items.filter((item) => {
-            if (this.isMatchQuery(item)) return item;
+            return this.isMatchQuery(item);
         });
         return dropdownItems;
     }
@@ -85,12 +95,50 @@ class DropdownFilter extends Component {
         let selected = this.state.selected;
         return selected.length === items.length;
     }
+    
+    toggleFilterMenu = e => {
+        e.preventDefault();
+        let { show } = this.state;
+        this.setState({show:!show});
+        if (!show) {
+            window.addEventListener('click', this.handleClickOutside);
+        }
+    }
+    
+    handleClickOutside = e => {
+        e.stopPropagation();
+        let { target } = e;
+        let { current } = this.dropdownRef;
+        if (!current.contains(target)) {
+            this.setState({show:false});
+            window.removeEventListener('click', this.handleClickOutside);
+        }
+    }
+    
+    getSelectedItems() {
+        let { selected } = this.state;
+        return selected.map((item, index) => {
+           return <div className="selected-item" key={index}>{item}</div>
+        });
+    }
+    emitValue = (selected) => {
+        if (this.props.onFilterChange && typeof this.props.onFilterChange === "function") {
+            this.props.onFilterChange(selected);
+        }
+    }
 
     render() {
+        let { show, selected } = this.state;
+        let { placeholder } = this.props;
         return (
-            <div className={"filter-wrapper"}>
-                <div className={"dropdown-input"} >Select Category</div>
-                <div className={"dropdown-filter-menu"}>
+            <div className={"filter-wrapper"} ref={this.dropdownRef}>
+                <div className={"dropdown-input"} onClick={this.toggleFilterMenu}>
+                    {selected.length === 0 ? placeholder : this.getSelectedItems()}
+                    <span className="icon">
+                        {show?(<FontAwesomeIcon icon="chevron-down"/>):(<FontAwesomeIcon icon="chevron-right"/>)}
+                    </span>
+                </div>
+                <div className={"dropdown-filter-menu" + (show?" show":"")}>
                     <div className={"dropdown-menu-item item-select-all" + (this.isSelectAll() ? " selected" : "")} onClick={this.toggleSelectAll}>
                         <span className="check">{this.isSelectAll() ? (<FontAwesomeIcon icon={["far", "check-square"]} />) : (<FontAwesomeIcon icon={["far", "square"]} />)}</span>
                         {this.state.isSelectAll ? "Unselect All" : "Select All"}
@@ -98,7 +146,7 @@ class DropdownFilter extends Component {
                     <div className={"dropdown-menu-item-input-query"}>
                         <input type={"text"} onChange={this.filterItems} />
                     </div>
-                    {(this.state.query && this.getItems().length > 0) ? (<div className={"dropdown-menu-item item-select-all-filtered" + (this.isSelectAllFiltered() ? " selected" : "")}>
+                    {(this.state.query && this.getItems().length > 0) ? (<div className={"dropdown-menu-item item-select-all-filtered" + (this.isSelectAllFiltered() ? " selected" : "")} onClick={this.toggleSelectAllItem}>
                         <span className="check">{this.isSelectAllFiltered()?<FontAwesomeIcon icon={["far", "check-square"]} />:<FontAwesomeIcon icon={["far", "square"]} />}</span>
                         {this.isSelectAllFiltered() ? "Unselect All filtered results" : "Select All filtered results"}
                         </div>
